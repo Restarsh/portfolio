@@ -1,25 +1,28 @@
 import type { Metadata } from "next";
-import { writing, blogUrl, formatWritingDate } from "@/content/writing";
+import { blogUrl, formatWritingDate } from "@/content/writing";
+import { getWriting } from "@/lib/blog";
 
 export const metadata: Metadata = {
   title: "Writing",
-  description: "Posts published on my blog — notes on building software that holds up.",
+  description: "Posts published on my blog - notes on building software that holds up.",
 };
 
-export default function WritingPage() {
+export default async function WritingPage() {
+  const posts = await getWriting();
+
   return (
     <div className="space-y-8">
       <header className="space-y-2">
         <p className="eyebrow">Writing</p>
         <h1 className="text-2xl font-semibold tracking-tight">Notes on building things</h1>
         <p className="max-w-prose text-sm leading-relaxed text-muted">
-          I write on a separate blog — it has its own database and its own deployment, which
+          I write on a separate blog - it has its own database and its own deployment, which
           is itself one of the projects in the list. Everything below links out.
         </p>
       </header>
 
       <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
-        {writing.map((post) => (
+        {posts.map((post) => (
           <li key={post.path}>
             <a
               href={`${blogUrl}${post.path}`}
@@ -54,3 +57,4 @@ export default function WritingPage() {
     </div>
   );
 }
+

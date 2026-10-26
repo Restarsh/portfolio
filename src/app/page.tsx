@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { site } from "@/content/site";
 import { getFeaturedProjects } from "@/content/projects";
-import { writing, blogUrl, formatWritingDate } from "@/content/writing";
+import { blogUrl, formatWritingDate } from "@/content/writing";
+import { getWriting } from "@/lib/blog";
 import { getAllTilMeta, formatTilDate } from "@/lib/til";
 import { ProjectCard } from "@/components/ProjectCard";
 
-export default function HomePage() {
+export default async function HomePage() {
   const projects = getFeaturedProjects();
   const til = getAllTilMeta().slice(0, 3);
-  const posts = writing.slice(0, 3);
+  const posts = await getWriting(3);
 
   return (
     <div className="space-y-20">
