@@ -29,26 +29,27 @@ export const projects: Project[] = [
   {
     slug: "inkwell",
     title: "Inkwell",
-    tagline: "A full-stack blog with hand-rolled cookie authentication.",
+    tagline: "A full-stack blog with hand-rolled auth and live comments.",
     year: "2026",
-    role: "Solo — design, backend, frontend, deployment",
-    stack: ["Next.js 15", "TypeScript", "Prisma", "PostgreSQL", "Tailwind", "Vercel"],
+    role: "Solo — design, backend, frontend, tests, deployment",
+    stack: ["Next.js 15", "TypeScript", "Prisma", "PostgreSQL", "SSE", "Tailwind", "Vitest", "Playwright"],
     repo: "https://github.com/Restarsh/inkwell-blog",
     live: "https://inkwell-blog-eta.vercel.app",
     featured: true,
     problem:
       "I wanted to stop building todo apps. A blog forces you to solve the problems that actually bite in production: sessions that survive a page reload, ownership checks that cannot be bypassed by editing a URL, and a database schema that does not need rewriting the first time you add a feature.",
     approach: [
-      "Designed the Postgres schema by hand before touching an ORM — three tables, explicit cascade rules, and indexes chosen for the queries I knew the UI would make (posts by author, comments by post, published posts by date).",
+      "Designed the Postgres schema by hand before touching an ORM — explicit cascade rules, and indexes chosen for the queries I knew the UI would make: posts by author, comments by post, published posts by date.",
       "Hand-rolled authentication rather than reaching for an auth library. Passwords are bcrypt at cost 12; sessions are signed JWTs in httpOnly, sameSite=lax cookies. Writing it myself meant I had to understand why each flag exists.",
       "Discovered that jsonwebtoken depends on Node's crypto and therefore cannot run in Next.js Edge middleware. Split the token layer onto jose, which uses WebCrypto, so the same session can be verified at the edge and in the Node runtime.",
       "Treated middleware as a UX guard, not a security boundary. Every mutating route handler re-reads the session and re-checks resource ownership, because middleware cannot see the database.",
-      "Validated every input with Zod schemas shared between the form and the route handler, so the client and server cannot disagree about what a valid email is.",
+      "Added live comments over Server-Sent Events: a Route Handler streams new comments and a presence count, resumes from Last-Event-ID after Vercel's connection cap, and the client reconciles optimistic inserts against the server response. Chose SSE over WebSockets because serverless functions cannot upgrade connections, and per-connection database polling over in-memory pub/sub because instances share no state.",
+      "Tested the parts worth testing: Vitest unit suites for slug generation, Zod schemas, JWT signing and password hashing, plus Playwright specs for the register-post-comment flow and cross-tab comment propagation. CI typechecks and builds against a throwaway Postgres service on every push.",
     ],
     outcome:
-      "Live with a real Postgres database, CI that typechecks and builds against a throwaway Postgres service on every push, and a migration history that lets me deploy schema changes without touching a shell. The auth layer survived a deliberate attempt to edit another user's post by changing the ID in a PATCH request — it returns 403.",
+      "Live with a real Postgres database, a migration history that lets me deploy schema changes without touching a shell, and a CI pipeline that runs typechecks, unit tests, and a production build on every push. The auth layer survived a deliberate attempt to edit another user's post by changing the ID in a PATCH request — it returns 403.",
     learned:
-      "The most valuable bug: a session cookie that silently failed to persist because `secure: true` was hardcoded and I was testing over plain HTTP. The browser drops it without an error. Since then, every security flag I set has a comment explaining the failure mode it prevents.",
+      "The hardest problem was not a bug: SSE connections on Vercel Hobby are closed after ten seconds, and a naive implementation loses every comment posted during the gap. Sending Last-Event-ID turns a dropped connection into a resumable cursor instead of a hole. The other lesson that stuck: a session cookie with secure: true hardcoded silently fails over plain HTTP, and the browser reports nothing at all.",
   },
   {
     slug: "hcosc",
