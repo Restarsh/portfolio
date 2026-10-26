@@ -41,13 +41,15 @@ export default function HomePage() {
           <Link href="/work" className="btn">
             See the work
           </Link>
-          <a
-            href={site.resumeUrl}
-            className="btn-ghost"
-            download
-          >
-            Download résumé
-          </a>
+                    {site.resumeUrl && (
+            <a
+              href={site.resumeUrl}
+              className="btn-ghost"
+              download
+            >
+              Download résumé
+            </a>
+          )}
           <a
             href={site.links.github}
             target="_blank"

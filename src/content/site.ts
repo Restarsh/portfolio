@@ -13,7 +13,8 @@ export const site = {
     "Frontend developer in Kathmandu. React, Next.js, TypeScript. I build interfaces that hold up under real use, and I write down what I learn along the way.",
 
   email: "restarsh.ziq@gmail.com",
-  resumeUrl: "/resume.pdf",
+    /** Set to null to hide the résumé link until a PDF exists. */
+  resumeUrl: null as string | null,
 
   links: {
     github: "https://github.com/Restarsh",
